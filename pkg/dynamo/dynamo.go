@@ -1,14 +1,13 @@
 package dynamo
 
 import (
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-
 	"github.com/konskoehler/go-scrape/pkg/sale"
 )
 
@@ -34,26 +33,26 @@ func New(region string, table string) (*DB, error) {
 	}, nil
 }
 
-func (d *DB) PutSales(sales []sale.Sale, t time.Time) error {
+// puts one sale item into the DynamoDB table.
+func (d *DB) PutSale(sale sale.Sale, t time.Time) error {
 
-	for _, item := range sales {
-		av, err := dynamodbattribute.MarshalMap(item)
-		if err != nil {
-			log.Fatalf("Got error marshalling map: %s", err)
-			return err
-		}
-
-		// Create item in table Movies
-		input := &dynamodb.PutItemInput{
-			Item:      av,
-			TableName: &d.table,
-		}
-
-		_, err = d.dynamodb.PutItem(input)
-		if err != nil {
-			log.Fatalf("Got error calling PutItem: %s", err)
-			return err
-		}
+	av, err := dynamodbattribute.MarshalMap(sale)
+	if err != nil {
+		return err
 	}
+
+	fmt.Printf("marshalled struct: %+v", av)
+
+	input := &dynamodb.PutItemInput{
+		Item:      av,
+		TableName: &d.table,
+	}
+
+	_, err = d.dynamodb.PutItem(input)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
