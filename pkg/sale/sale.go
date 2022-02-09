@@ -7,7 +7,8 @@ import (
 // Sale is one successful auction on ebay.de
 type Sale struct {
 	Title            string      `json:"title"`
-	Date             time.Time   `json:"date"`
+	DateSold         time.Time   `json:"date_sold"`
+	DateScraped      time.Time   `json:"date_scraped"`
 	Cost             int         `json:"cost"`
 	ProposalAccepted bool        `json:"proposal_accepted"`
 	Shipping         int         `json:"shipping"`

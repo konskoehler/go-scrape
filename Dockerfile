@@ -1,16 +1,18 @@
-# syntax=docker/dockerfile:1
+FROM public.ecr.aws/lambda/provided:al2 as build
 
-FROM golang:1.16-alpine
+# install compiler
+RUN yum install -y golang
+RUN go env -w GOPROXY=direct
 
-WORKDIR /app
-
-COPY go.mod ./
-COPY go.sum ./
+# cache dependencies
+ADD go.mod go.sum ./
 RUN go mod download
 
-COPY *.go ./
+# build
+ADD . .
+RUN go build -o /main
 
-RUN go build -o /docker-go-scrape
-
-CMD [ "/docker-go-scrape" ]
-
+# copy artifacts to a clean image
+FROM public.ecr.aws/lambda/provided:al2
+COPY --from=build /main /main
+ENTRYPOINT [ "/main" ]           

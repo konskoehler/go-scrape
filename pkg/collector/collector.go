@@ -77,7 +77,7 @@ func NewDetailCollector(sales *[]sale.Sale) (*colly.Collector, error) {
 		dateMinutes := e.ChildText(".endedDate")
 		date_ := strings.Replace(dateDays+" "+dateMinutes, "MEZ", "+01", 1)
 		layout := "02. Jan. 2006 15:04:05 -07"
-		time, _ := time.Parse(layout, date_)
+		dateFinal, _ := time.Parse(layout, date_)
 
 		cost := strings.Replace(e.ChildText(".notranslate.vi-VR-cvipPrice"), "EUR ", "", 1)
 		if cost == "" { // Seller accepted offer
@@ -100,7 +100,7 @@ func NewDetailCollector(sales *[]sale.Sale) (*colly.Collector, error) {
 		}
 		url := e.Request.URL.String()
 		seller := e.ChildText(".mbg-nw")
-		fmt.Println(title, time, cost, shipping, seller)
+		fmt.Println(title, dateFinal, cost, shipping, seller)
 
 		details := make(map[string]string, 0)
 
@@ -124,7 +124,8 @@ func NewDetailCollector(sales *[]sale.Sale) (*colly.Collector, error) {
 
 		sale := sale.Sale{
 			Title:            title,
-			Date:             time,
+			DateSold:         dateFinal,
+			DateScraped:      time.Now(),
 			Cost:             StringToCents(cost),
 			ProposalAccepted: proposalAccepted,
 			Shipping:         StringToCents(shipping),

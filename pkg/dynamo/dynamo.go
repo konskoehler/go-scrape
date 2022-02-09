@@ -2,7 +2,6 @@ package dynamo
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -34,7 +33,7 @@ func New(region string, table string) (*DB, error) {
 }
 
 // puts one sale item into the DynamoDB table.
-func (d *DB) PutSale(sale sale.Sale, t time.Time) error {
+func (d *DB) PutSale(sale sale.Sale) error {
 
 	av, err := dynamodbattribute.MarshalMap(sale)
 	if err != nil {

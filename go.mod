@@ -2,7 +2,10 @@ module github.com/konskoehler/go-scrape
 
 go 1.17
 
-require github.com/gocolly/colly v1.2.0
+require (
+	github.com/aws/aws-lambda-go v1.28.0
+	github.com/gocolly/colly v1.2.0
+)
 
 require github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
 
