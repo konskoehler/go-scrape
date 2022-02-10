@@ -1,7 +1,7 @@
 package collector
 
 import (
-	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -56,11 +56,11 @@ func NewCollector(Q *queue.Queue) (*colly.Collector, error) {
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("visiting", r.URL)
+		log.Print("visiting", r.URL)
 	})
 
 	c.OnError(func(r *colly.Response, e error) {
-		fmt.Println("Got this error:", e)
+		log.Print("Got this error:", e)
 	})
 
 	return c, nil
@@ -89,6 +89,7 @@ func NewDetailCollector(sales *[]sale.Sale) (*colly.Collector, error) {
 		if cost == "" {
 			cost = strings.Replace(e.ChildText("#mm-saleDscPrc"), "EUR ", "", 1)
 		}
+		cost = strings.Replace(cost, ".", "", -1)
 
 		var proposalAccepted bool
 		if e.ChildText(".vi-boLabel") != "" {
@@ -106,7 +107,7 @@ func NewDetailCollector(sales *[]sale.Sale) (*colly.Collector, error) {
 		if seller == "" { // Buy-it-now when seller has multiple identical items in stock
 			seller = e.ChildText(".ux-textspans--PSEUDOLINK.ux-textspans--BOLD")
 		}
-		fmt.Println(title, dateFinal, cost, shipping, seller)
+		log.Print(title, dateFinal, cost, shipping, seller)
 
 		details := make(map[string]string, 0)
 
