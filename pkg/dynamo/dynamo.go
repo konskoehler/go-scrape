@@ -1,8 +1,6 @@
 package dynamo
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -39,8 +37,6 @@ func (d *DB) PutSale(sale sale.Sale) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("marshalled struct: %+v", av)
 
 	input := &dynamodb.PutItemInput{
 		Item:      av,
