@@ -77,8 +77,8 @@ resource aws_iam_role_policy_attachment lambda-basic-exec-role {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource aws_iam_policy go-scrape-lambda_logging {
-  name = "go-eat-lambda_logging"
+resource aws_iam_policy lambda-logs {
+  name = "${local.prefix}-lambda-logs"
   path = "/"
   description = "IAM policy for logging from a lambda"
 
@@ -100,13 +100,13 @@ resource aws_iam_policy go-scrape-lambda_logging {
 EOF
 }
 
-resource aws_iam_role_policy_attachment go-scrape-lambda_logs {
+resource aws_iam_role_policy_attachment lambda-logs-attachment {
   role = aws_iam_role.lambda.name
-  policy_arn = aws_iam_policy.go-scrape-lambda_logging.arn
+  policy_arn = aws_iam_policy.lambda-logs.arn
 }
 
-resource aws_iam_policy go-scrape-dynamo {
-  name = "go-scrape-dynamo"
+resource aws_iam_policy lambda-dynamo {
+  name = "${local.prefix}-dynamo"
   path = "/"
   description = "IAM policy for DynamoDB access from a lambda"
 
@@ -127,19 +127,19 @@ resource aws_iam_policy go-scrape-dynamo {
 EOF
 }
 
-resource aws_iam_role_policy_attachment go-scrape-dynamo {
+resource aws_iam_role_policy_attachment lambda-dynamo {
   role = aws_iam_role.lambda.name
-  policy_arn = aws_iam_policy.go-scrape-dynamo.arn
+  policy_arn = aws_iam_policy.lambda-dynamo.arn
 }
 
-resource aws_lambda_function go-scrape {
+resource aws_lambda_function lambda-func {
  depends_on = [
   null_resource.ecr_image,
   aws_iam_role.lambda 
  ]
  function_name = "${local.prefix}-lambda"
  role = aws_iam_role.lambda.arn
- timeout = 30
+ timeout = 300
  image_uri = "${aws_ecr_repository.repo.repository_url}@${data.aws_ecr_image.lambda_image.id}"
  package_type = "Image"
  environment {
@@ -151,25 +151,25 @@ resource aws_lambda_function go-scrape {
 }
  
 # we want to run this everyday at 4:20am 
-resource aws_cloudwatch_event_rule go-scrape-cron {
-  name                = "go-scrape-cron"
-  schedule_expression = "cron(20 4 * * ? *)"
+resource aws_cloudwatch_event_rule lambda-cron {
+  name = "${local.prefix}-cron"
+  schedule_expression = "cron(10 0 * * ? *)"
 }
 
-resource aws_cloudwatch_event_target go-scrape-lambda {
+resource aws_cloudwatch_event_target event-target {
   target_id = "runLambda"
-  rule      = aws_cloudwatch_event_rule.go-scrape-cron.name
-  arn       = aws_lambda_function.go-scrape.arn
+  rule      = aws_cloudwatch_event_rule.lambda-cron.name
+  arn       = aws_lambda_function.lambda-func.arn
 }
 
-resource aws_lambda_permission go-scrape-cloudwatch {
+resource aws_lambda_permission cloudwatch {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.go-scrape.arn
+  function_name = aws_lambda_function.lambda-func.arn
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.go-scrape-cron.arn
+  source_arn    = aws_cloudwatch_event_rule.lambda-cron.arn
 }
 
 output "lambda_name" {
- value = aws_lambda_function.go-scrape.id
+ value = aws_lambda_function.lambda-func.id
 }

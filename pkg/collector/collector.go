@@ -78,6 +78,9 @@ func NewDetailCollector(sales *[]sale.Sale) (*colly.Collector, error) {
 		date_ := strings.Replace(dateDays+" "+dateMinutes, "MEZ", "+01", 1)
 		layout := "02. Jan. 2006 15:04:05 -07"
 		dateFinal, _ := time.Parse(layout, date_)
+		if dateFinal.Year() < 1980 {
+			dateFinal = time.Now().AddDate(0, 0, -1)
+		}
 
 		cost := strings.Replace(e.ChildText(".notranslate.vi-VR-cvipPrice"), "EUR ", "", 1)
 		if cost == "" { // Seller accepted offer
@@ -100,6 +103,9 @@ func NewDetailCollector(sales *[]sale.Sale) (*colly.Collector, error) {
 		}
 		url := e.Request.URL.String()
 		seller := e.ChildText(".mbg-nw")
+		if seller == "" { // Buy-it-now when seller has multiple identical items in stock
+			seller = e.ChildText(".ux-textspans--PSEUDOLINK.ux-textspans--BOLD")
+		}
 		fmt.Println(title, dateFinal, cost, shipping, seller)
 
 		details := make(map[string]string, 0)
