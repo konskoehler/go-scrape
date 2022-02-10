@@ -9,3 +9,4 @@ aws lambda update-function-code \
     --function-name  go-scrape-lambda \
     --image-uri $REPO:latest
 
+echo "Update successful."
