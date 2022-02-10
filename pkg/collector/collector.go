@@ -108,7 +108,7 @@ func NewDetailCollector(sales *[]sale.Sale) (*colly.Collector, error) {
 		values := make([]string, 0)
 		e.ForEach(".ux-layout-section__item > div", func(_ int, row *colly.HTMLElement) {
 			row.ForEach(".ux-labels-values__labels-content", func(i int, el *colly.HTMLElement) {
-				keys = append(keys, el.Text)
+				keys = append(keys, strings.Trim(el.Text, ":"))
 			})
 			row.ForEach(".ux-labels-values__values-content", func(i int, el *colly.HTMLElement) {
 				values = append(values, el.Text)
