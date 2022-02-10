@@ -150,6 +150,26 @@ resource aws_lambda_function go-scrape {
   }
 }
  
+# we want to run this everyday at 4:20am 
+resource aws_cloudwatch_event_rule go-scrape-cron {
+  name                = "go-scrape-cron"
+  schedule_expression = "cron(20 4 * * ? *)"
+}
+
+resource aws_cloudwatch_event_target go-scrape-lambda {
+  target_id = "runLambda"
+  rule      = aws_cloudwatch_event_rule.go-scrape-cron.name
+  arn       = aws_lambda_function.go-scrape.arn
+}
+
+resource aws_lambda_permission go-scrape-cloudwatch {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.go-scrape.arn
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.go-scrape-cron.arn
+}
+
 output "lambda_name" {
  value = aws_lambda_function.go-scrape.id
 }
