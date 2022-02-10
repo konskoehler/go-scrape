@@ -1,5 +1,4 @@
 #!/bin/bash
-
 REPO=$(aws ecr describe-repositories | jq -r '.repositories[].repositoryUri')
 
 docker build -t $REPO:latest --platform=linux/amd64 .
