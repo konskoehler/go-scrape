@@ -8,3 +8,4 @@ docker push $REPO:latest
 aws lambda update-function-code \
     --function-name  go-scrape-lambda \
     --image-uri $REPO:latest
+
